@@ -41,6 +41,8 @@ public class MovingState : IMonsterState
 
 public class AttackingState : IMonsterState
 {
+    private float nextAttackTime = 0f;
+
     public void EnterState(Monster monster)
     {
         Debug.Log("Entering Attacking State");
@@ -48,14 +50,29 @@ public class AttackingState : IMonsterState
 
     public void UpdateState(Monster monster)
     {
+        if (monster.soldiersList.Length == 0)
+        {
+            monster.TransitionToState(new MovingState());
+            return;
+        }
         bool soldierInRange = false;
-        
+        Soilder closestSoldier = null;
+        float minDistance = float.MaxValue;
+
         foreach (var soldier in monster.soldiersList)
         {
-            if (Vector3.Distance(soldier.transform.position, monster.transform.position) <= monster.AttackRange)
+            if (soldier == null)
+                continue;
+
+            float distance = Vector3.Distance(soldier.transform.position, monster.transform.position);
+            if (distance <= monster.AttackRange)
             {
                 soldierInRange = true;
-                break;
+                if (distance < minDistance)
+                {
+                    minDistance = distance;
+                    closestSoldier = soldier;
+                }
             }
         }
 
@@ -63,27 +80,36 @@ public class AttackingState : IMonsterState
         {
             monster.TransitionToState(new MovingState());
         }
-        else
+        else if (Time.time > nextAttackTime && closestSoldier != null)
         {
-            // Attack logic here, e.g., dealing damage to the soldier.
+            if (closestSoldier != null) // Check again before attacking
+            {
+                closestSoldier.Health -= monster.Damage;
+                // Debug.Log("Monster attacked soldier. Soldier health: " + closestSoldier.Health);
+                nextAttackTime = Time.time + 1f;
+
+                if (closestSoldier.Health < 0)
+                {
+                    // Check if the soldier is not null before trying to destroy it
+                    if (closestSoldier != null)
+                    {
+                        // closestSoldier.Died(); // Implement this method to handle soldier's death
+                    }
+                }
+            }
         }
     }
-
     public void ExitState(Monster monster)
     {
-        
+        Debug.Log("Exiting Attacking State");
     }
-    //check not any solder in range
-    //if not change state to moving
-    
 }
+
 
 public class DyingState : IMonsterState
 {
     public void EnterState(Monster monster)
     {
-        Debug.Log("Entering Dying State");
-        // Additional initialization for dying
     }
 
     public void UpdateState(Monster monster)
@@ -108,7 +134,8 @@ public class Monster : MonoBehaviour
 {
     public List<GameObject> PathNodes { get; private set; }
     public int CurrentNodeIndex { get; private set; } = 0;
-    public Soldier[] soldiersList;
+    private bool isDead = false;
+    public Soilder[] soldiersList;
     [SerializeField]
     private float health;
     public float Health
@@ -143,12 +170,14 @@ public class Monster : MonoBehaviour
         gameObject.tag = "monster";
     }
 
+
     void Update()
     {
         currentState?.UpdateState(this);
-        CheckSoidlerInRange();
-
+        CheckSoldierInRange();
+        CheckDied();
     }
+
 
     public void SetPathNodes(List<GameObject> nodes)
     {
@@ -162,6 +191,7 @@ public class Monster : MonoBehaviour
         currentState = newState;
         currentState.EnterState(this);
     }
+
 
     public void MoveTowardsNode(GameObject node)
     {
@@ -202,15 +232,45 @@ public class Monster : MonoBehaviour
             }
         }
     }
-
-    public void CheckSoidlerInRange()
+    private void CheckDied()
     {
-        soldiersList = FindObjectsOfType<Soldier>();
-        foreach (var solder in soldiersList)
+        if (health <= 0 && !isDead)
         {
-            if (Vector3.Distance(solder.transform.position, transform.position) <= AttackRange)
+            isDead = true;
+            animator.SetTrigger("die");
+            StartCoroutine(WaitForAnimationAndDestroy());
+        }
+    }
+
+
+    private IEnumerator WaitForAnimationAndDestroy()
+    {
+        // Assuming "die" is the name of the death animation
+        AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+        while (!stateInfo.IsName("die") || stateInfo.normalizedTime < 1.0f)
+        {
+            yield return null;
+            stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+        }
+
+        Destroy(gameObject);
+    }
+
+
+
+    public void CheckSoldierInRange()
+    {
+        if (currentState is AttackingState)
+            return;
+
+        soldiersList = FindObjectsByType<Soilder>(FindObjectsSortMode.None);
+
+        foreach (var soldier in soldiersList)
+        {
+            if (Vector3.Distance(soldier.transform.position, transform.position) <= AttackRange)
             {
                 TransitionToState(new AttackingState());
+                break;
             }
         }
     }

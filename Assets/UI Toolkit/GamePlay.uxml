@@ -1,0 +1,8 @@
+<engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <engine:VisualElement name="TowerSelection" enabled="true" style="flex-grow: 0; height: 140px; width: 920px; background-color: rgba(203, 221, 126, 0.75); flex-shrink: 0; bottom: 0; align-content: center; align-self: flex-end; justify-content: space-evenly; align-items: flex-end; position: absolute; flex-direction: row; flex-wrap: wrap; display: flex;">
+        <engine:Button text="Button" name="Tower1" style="height: 107px; width: 142px; align-self: center; background-image: url(&quot;project://database/Assets/Sprite/Tower/TowerADC/1th/tower.png?fileID=21300000&amp;guid=e80509545ef8b084e89048869bbb80d7&amp;type=3#tower&quot;); background-color: rgba(188, 188, 188, 0); border-top-width: 0; border-right-width: 0; border-bottom-width: 0; border-left-width: 0;" />
+        <engine:Button text="Button" name="Tower2" style="height: 107px; width: 142px; align-self: center; background-color: rgba(81, 81, 81, 0); background-image: url(&quot;project://database/Assets/Sprite/Tower/TowerADC/2th/tower.png?fileID=21300000&amp;guid=66a80c82978d1944399f1237e787c988&amp;type=3#tower&quot;); border-top-width: 0; border-right-width: 0; border-bottom-width: 0; border-left-width: 0;" />
+        <engine:Button text="Button" name="Tower3" style="height: 107px; width: 142px; align-self: center;" />
+        <engine:Button text="Button" name="Tower4" style="height: 107px; width: 142px; align-self: center;" />
+    </engine:VisualElement>
+</engine:UXML>
