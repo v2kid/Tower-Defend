@@ -13,7 +13,7 @@ public class MovingState : IMonsterState
 {
     public void EnterState(Monster monster)
     {
-        // Debug.Log("Entering Moving State");
+        Debug.Log("Entering Moving State");
     }
 
     public void UpdateState(Monster monster)
@@ -63,7 +63,6 @@ public class AttackingState : IMonsterState
         {
             if (soldier == null)
                 continue;
-
             float distance = Vector3.Distance(soldier.transform.position, monster.transform.position);
             if (distance <= monster.AttackRange)
             {
@@ -199,13 +198,11 @@ public class Monster : MonoBehaviour
         direction.z = 0;
         transform.position += Speed * Time.deltaTime * direction.normalized;
 
-        // Reset all animator parameters
         animator.SetBool("right", false);
         animator.SetBool("left", false);
         animator.SetBool("forward", false);
         animator.SetBool("back", false);
 
-        // Set the appropriate animator parameter based on direction
         if (direction.x > 0)
         {
             animator.SetBool("right", true);
@@ -237,6 +234,7 @@ public class Monster : MonoBehaviour
         if (health <= 0 && !isDead)
         {
             isDead = true;
+            Speed = 0;
             animator.SetTrigger("die");
             StartCoroutine(WaitForAnimationAndDestroy());
         }
@@ -245,7 +243,6 @@ public class Monster : MonoBehaviour
 
     private IEnumerator WaitForAnimationAndDestroy()
     {
-        // Assuming "die" is the name of the death animation
         AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
         while (!stateInfo.IsName("die") || stateInfo.normalizedTime < 1.0f)
         {

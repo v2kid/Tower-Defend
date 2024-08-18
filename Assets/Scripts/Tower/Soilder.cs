@@ -100,7 +100,7 @@ public class SoilderAttackState : ISoilderState
 
     public void ExitState(Soilder Soilder)
     {
-        Debug.Log("Exiting Attack State");
+         Soilder.PerformIdle();
     }
 }
 
@@ -121,6 +121,7 @@ public class Soilder : MonoBehaviour
         get { return health; }
         set { health = value; }
     }
+   
 
     [SerializeField]
     private int damage;
@@ -200,6 +201,11 @@ public class Soilder : MonoBehaviour
     public void PerformAttack()
     {
         Animator.SetBool("Attack", true);
+    }
+    public void PerformIdle()
+    {
+        Animator.SetBool("Attack", false);
+        Animator.Play("Idle");
     }
 
     private void OnDrawGizmos()
